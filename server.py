@@ -1,7 +1,6 @@
 from bot import telegram_chatbot
 import random
 import threading
-#import gizoogle
 
 bot = telegram_chatbot("config.cfg")
 
@@ -11,17 +10,14 @@ def make_reply(msg):
 
     if msg is not None:
 
-        if(msg.lower() == 'game'):
-            _1 = random.randint(1,6)
-            _2 = random.randint(1,6)
-            reply = "You have got " + str(_1) + " and " + str(_2) + " on two dices having a total sum of " + str(_1 + _2) + "!!!"
+        if(msg.lower() == 'hi' or msg.lower() == 'hello' or msg.lower() =='hii'):
+            reply = "Hi! How are you! You can set reminder by typing 'reminder' or if you are in a mood to play I have something for you ;). Just type game."
             return reply, False
 
         if(msg.lower() == 'reminder'):
             reply = ("Enter your reminder according to following format: \n 1st line: When to remind(After how much minutes) \n 2nd line: Your reminder message" )
             return reply, True
             
-        #reply = gizoogle.text(msg)
         reply = "Hiii!!! \n Sorry, but i cann't understant ehat are you trying to say. Let's start again. Type 'Game' or 'Reminder'."
     return reply, False
 
@@ -51,11 +47,13 @@ def setReminder(msg, from_):
 
 update_id = None
 reminderMessage = False
+play = False
+run = -1
+score = 0
 while True:
     updates = bot.get_updates(offset=update_id)
     updates = updates["result"]
     if updates:
-        print(reminderMessage)
         for item in updates:
             update_id = item["update_id"]
             try:
@@ -68,6 +66,58 @@ while True:
                 reply, reminderMessage = setReminder(message, from_)
                 if(reminderMessage == True):
                     bot.send_message(reply ,from_)
+                else:
+                    bot.send_message("Reminder Set!", from_)
                 continue
+            
+            ''' 
+                Hand Cricket
+            '''
+            if( play == True):
+                run = message
+                print(run)
+                try:
+                    temp = int(run)
+                    if(temp<1 or temp>6):
+                        play = False
+                        bot.send_message("You typed invalid number! Game Over\n Total Score: "+str(score), from_)
+                        score = 0
+                        run = -1
+                        run = int(run)
+                        print(run)
+                        bowler = random.randint(1,6)
+                        print(bowler, run)
+                        if(bowler == run):
+                            play = False
+                            bot.send_message("OUT!!!!\n Total Score: "+str(score), from_)
+                            score = 0
+                            run = -1
+                        else:
+                            bot.send_message(bowler, from_)
+                            score += run
+                    else:
+                        play = False
+                        bot.send_message("You typed invalid number! Game Over\n Total Score: "+str(score), from_)
+                        score = 0
+                        run = -1 
+                        continue
+                    
+                except:
+                    play = False
+                    bot.send_message("You typed invalid number! Game Over\n Total Score: "+str(score), from_)
+                    score = 0
+                    run = -1 
+                    continue
+
+                continue
+
+
+            if(message.lower() == 'game'):
+                play = True
+                bot.send_message("Let's play Hand Cricket. You have to enter number between 1 and 6. If it matches with my number, you gets out otherwise you score that much. Simple! Let's start. It's your first ball", from_)
+                continue
+
+
+
             reply, reminderMessage = make_reply(message)
             bot.send_message(reply, from_)
