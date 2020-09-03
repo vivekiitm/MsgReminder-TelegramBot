@@ -78,11 +78,7 @@ while True:
                 print(run)
                 try:
                     temp = int(run)
-                    if(temp<1 or temp>6):
-                        play = False
-                        bot.send_message("You typed invalid number! Game Over\n Total Score: "+str(score), from_)
-                        score = 0
-                        run = -1
+                    if(temp>=1 or temp<=6):
                         run = int(run)
                         print(run)
                         bowler = random.randint(1,6)
